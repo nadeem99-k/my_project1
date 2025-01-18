@@ -1,11 +1,10 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import { Toolbar } from './Toolbar';
 import { LayersPanel } from './LayersPanel';
 import { AdjustmentsPanel } from './AdjustmentsPanel';
 import { Canvas } from './Canvas';
-import { useImageEditor } from '@/hooks/useImageEditor';
 import { EditorProvider } from '@/contexts/EditorContext';
 
 interface ImageEditorProps {

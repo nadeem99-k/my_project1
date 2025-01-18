@@ -15,6 +15,7 @@ export function AnimatedBackground({ className }: { className?: string }) {
 
     // Set canvas size
     const resizeCanvas = () => {
+      if (!canvas) return;
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
@@ -23,7 +24,7 @@ export function AnimatedBackground({ className }: { className?: string }) {
 
     // Particle configuration
     const particles: Particle[] = [];
-    const particleCount = Math.min(window.innerWidth * 0.1, 100); // Responsive particle count
+    const particleCount = Math.min(window.innerWidth * 0.1, 100);
     const baseRadius = Math.max(window.innerWidth * 0.002, 1);
 
     class Particle {
@@ -35,9 +36,9 @@ export function AnimatedBackground({ className }: { className?: string }) {
       vy: number;
       alpha: number;
 
-      constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
+      constructor(canvasWidth: number, canvasHeight: number) {
+        this.x = Math.random() * canvasWidth;
+        this.y = Math.random() * canvasHeight;
         this.radius = baseRadius + Math.random() * baseRadius;
         this.color = `hsla(${Math.random() * 60 + 200}, 70%, 60%, 0.5)`;
         this.vx = Math.random() * 0.2 - 0.1;
@@ -45,8 +46,7 @@ export function AnimatedBackground({ className }: { className?: string }) {
         this.alpha = Math.random() * 0.5 + 0.2;
       }
 
-      draw() {
-        if (!ctx) return;
+      draw(ctx: CanvasRenderingContext2D) {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
         ctx.fillStyle = this.color;
@@ -54,26 +54,27 @@ export function AnimatedBackground({ className }: { className?: string }) {
         ctx.fill();
       }
 
-      update() {
-        if (!canvas) return;
+      update(canvasWidth: number, canvasHeight: number) {
         this.x += this.vx;
         this.y += this.vy;
 
-        if (this.x < 0) this.x = canvas.width;
-        if (this.x > canvas.width) this.x = 0;
-        if (this.y < 0) this.y = canvas.height;
-        if (this.y > canvas.height) this.y = 0;
+        if (this.x < 0) this.x = canvasWidth;
+        if (this.x > canvasWidth) this.x = 0;
+        if (this.y < 0) this.y = canvasHeight;
+        if (this.y > canvasHeight) this.y = 0;
       }
     }
 
     // Create particles
     for (let i = 0; i < particleCount; i++) {
-      particles.push(new Particle());
+      particles.push(new Particle(canvas.width, canvas.height));
     }
 
     // Animation loop
     let animationFrameId: number;
     const animate = () => {
+      if (!canvas || !ctx) return;
+      
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       
       // Draw gradient background
@@ -87,8 +88,8 @@ export function AnimatedBackground({ className }: { className?: string }) {
 
       // Update and draw particles
       particles.forEach(particle => {
-        particle.update();
-        particle.draw();
+        particle.update(canvas.width, canvas.height);
+        particle.draw(ctx);
       });
 
       animationFrameId = requestAnimationFrame(animate);
