@@ -28,6 +28,20 @@ export default function Home() {
       const data = await response.json();
       if (data.imageUrl) {
         setGeneratedImage(data.imageUrl);
+        
+        // Save to history
+        const historyItem = {
+          id: Date.now().toString(),
+          imageUrl: data.imageUrl,
+          prompt: formData.prompt,
+          style: formData.style,
+          createdAt: new Date().toISOString(),
+        };
+        
+        const savedHistory = localStorage.getItem('imageHistory');
+        const history = savedHistory ? JSON.parse(savedHistory) : [];
+        const updatedHistory = [historyItem, ...history].slice(0, 50); // Keep last 50 items
+        localStorage.setItem('imageHistory', JSON.stringify(updatedHistory));
       }
     } catch (error) {
       console.error('Error generating image:', error);

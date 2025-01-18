@@ -42,9 +42,9 @@ import {
 } from 'lucide-react';
 
 interface EditImageParams {
-  params: Promise<{
+  params: {
     imageUrl: string;
-  }>;
+  };
 }
 
 type Tool = 'brush' | 'eraser' | 'rectangle' | 'circle' | 'line' | 'arrow' | 'text' | 'move' | 'clone' | 'blur';
@@ -59,13 +59,11 @@ type Layer = {
 
 export default function EditImage({ params }: EditImageParams) {
   const router = useRouter();
-  const resolvedParams = React.use(params);
-  
   const imageUrl = React.useMemo(() => {
-    if (!resolvedParams?.imageUrl) return '';
+    if (!params?.imageUrl) return '';
     
     try {
-      return decodeURIComponent(resolvedParams.imageUrl)
+      return decodeURIComponent(params.imageUrl)
         .replace(/\+/g, ' ')
         .replace(/%2F/g, '/')
         .replace(/%3A/g, ':')
@@ -74,9 +72,9 @@ export default function EditImage({ params }: EditImageParams) {
         .replace(/%26/g, '&');
     } catch (error) {
       console.error('Error decoding URL:', error);
-      return resolvedParams.imageUrl;
+      return params.imageUrl;
     }
-  }, [resolvedParams?.imageUrl]);
+  }, [params]);
 
   const [brightness, setBrightness] = useState(100);
   const [contrast, setContrast] = useState(100);
@@ -255,6 +253,14 @@ export default function EditImage({ params }: EditImageParams) {
     window.addEventListener('keydown', handleKeyboard);
     return () => window.removeEventListener('keydown', handleKeyboard);
   }, [layers]);
+
+  if (!imageUrl) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">Invalid image URL</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/50 py-8">
