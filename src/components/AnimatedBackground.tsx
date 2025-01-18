@@ -65,7 +65,7 @@ export function AnimatedBackground({ className }: { className?: string }) {
       }
     }
 
-    // Create particles
+    // Create particles with canvas dimensions
     for (let i = 0; i < particleCount; i++) {
       particles.push(new Particle(canvas.width, canvas.height));
     }
