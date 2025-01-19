@@ -30,20 +30,6 @@ export default function Home() {
       const reader = response.body?.getReader();
       if (!reader) throw new Error('No response stream');
 
-      // Define a type-safe parsing function
-      const parseUpdate = (line: string) => {
-        try {
-          return JSON.parse(line) as {
-            status: 'generating' | 'enhancing' | 'completed' | 'failed';
-            message: string;
-            imageUrl?: string;
-            error?: string;
-          };
-        } catch {
-          throw new Error('Failed to parse server response');
-        }
-      };
-
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -52,7 +38,18 @@ export default function Home() {
         const updates = text
           .split('\n')
           .filter(Boolean)
-          .map(parseUpdate);
+          .map((line) => {
+            try {
+              return JSON.parse(line) as {
+                status: 'generating' | 'enhancing' | 'completed' | 'failed';
+                message: string;
+                imageUrl?: string;
+                error?: string;
+              };
+            } catch {
+              throw new Error('Failed to parse server response');
+            }
+          });
 
         for (const update of updates) {
           if (update.status === 'failed') {
