@@ -35,7 +35,10 @@ export default function Home() {
         if (done) break;
 
         const text = new TextDecoder().decode(value);
-        const updates = text.split('\n').filter(Boolean).map(JSON.parse);
+        const updates = text
+          .split('\n')
+          .filter(Boolean)
+          .map((line: string) => JSON.parse(line));
 
         for (const update of updates) {
           if (update.status === 'failed') {
