@@ -9,6 +9,7 @@ import { ThemeToggle } from '@/components/ThemeToggle';
 export default function Home() {
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   const handleImageGeneration = async (formData: {
     prompt: string;
@@ -17,34 +18,44 @@ export default function Home() {
   }) => {
     try {
       setIsLoading(true);
+      setGeneratedImage(null);
+      setStatusMessage('Please wait, your image is being generated...');
+      
       const response = await fetch('/api/generate', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       });
 
-      const data = await response.json();
-      if (data.imageUrl) {
-        setGeneratedImage(data.imageUrl);
-        
-        // Save to history
-        const historyItem = {
-          id: Date.now().toString(),
-          imageUrl: data.imageUrl,
-          prompt: formData.prompt,
-          style: formData.style,
-          createdAt: new Date().toISOString(),
-        };
-        
-        const savedHistory = localStorage.getItem('imageHistory');
-        const history = savedHistory ? JSON.parse(savedHistory) : [];
-        const updatedHistory = [historyItem, ...history].slice(0, 50); // Keep last 50 items
-        localStorage.setItem('imageHistory', JSON.stringify(updatedHistory));
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error('No response stream');
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const text = new TextDecoder().decode(value);
+        const updates = text.split('\n').filter(Boolean).map(JSON.parse);
+
+        for (const update of updates) {
+          if (update.status === 'failed') {
+            throw new Error(update.error || 'Generation failed');
+          }
+          
+          if (update.imageUrl) {
+            setGeneratedImage(update.imageUrl);
+          }
+          
+          setStatusMessage(update.message);
+        }
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error generating image:', error);
+      if (error instanceof Error) {
+        setStatusMessage(`Error: ${error.message}`);
+      } else {
+        setStatusMessage('An unexpected error occurred');
+      }
     } finally {
       setIsLoading(false);
     }

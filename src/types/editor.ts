@@ -4,9 +4,9 @@ export type Tool =
   | 'eraser' 
   | 'rectangle' 
   | 'circle' 
+  | 'text' 
   | 'line' 
   | 'arrow' 
-  | 'text' 
   | 'clone' 
   | 'blur'
   | 'crop';
@@ -19,6 +19,11 @@ export type Layer = {
   blendMode: BlendMode;
   visible: boolean;
   locked: boolean;
+  content?: string;
+  position?: { x: number; y: number };
+  font?: string;
+  size?: number;
+  color?: string;
 };
 
 export type BlendMode = 
@@ -70,6 +75,11 @@ export interface EditorState {
     grayscale: number;
     invert: number;
   };
+  textSettings: {
+    font: string;
+    size: number;
+    color: string;
+  };
 }
 
 export type EditorAction =
@@ -84,4 +94,5 @@ export type EditorAction =
   | { type: 'UPDATE_ADJUSTMENTS'; payload: Partial<EditorState['adjustments']> }
   | { type: 'UPDATE_FILTERS'; payload: Partial<EditorState['filters']> }
   | { type: 'UNDO' }
-  | { type: 'REDO' }; 
+  | { type: 'REDO' }
+  | { type: 'UPDATE_TEXT_SETTINGS'; payload: Partial<EditorState['textSettings']> }; 

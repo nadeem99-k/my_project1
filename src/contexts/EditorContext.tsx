@@ -44,6 +44,11 @@ const initialState: EditorState = {
     grayscale: 0,
     invert: 0,
   },
+  textSettings: {
+    font: 'Arial',
+    size: 24,
+    color: '#000000'
+  }
 };
 
 const EditorContext = createContext<{
@@ -53,6 +58,35 @@ const EditorContext = createContext<{
 
 function editorReducer(state: EditorState, action: EditorAction): EditorState {
   switch (action.type) {
+    case 'SET_TOOL':
+      return { ...state, tool: action.payload };
+    
+    case 'ADD_LAYER':
+      return {
+        ...state,
+        layers: [...state.layers, action.payload],
+        currentLayer: state.layers.length
+      };
+    
+    case 'UPDATE_LAYER':
+      return {
+        ...state,
+        layers: state.layers.map((layer, i) => 
+          i === action.payload.index 
+            ? { ...layer, ...action.payload.layer }
+            : layer
+        )
+      };
+
+    case 'SET_CURRENT_LAYER':
+      return { ...state, currentLayer: action.payload };
+
+    case 'UPDATE_TEXT_SETTINGS':
+      return {
+        ...state,
+        textSettings: { ...state.textSettings, ...action.payload }
+      };
+      
     default:
       return state;
   }

@@ -8,9 +8,10 @@ import Link from 'next/link';
 interface ImagePreviewProps {
   imageUrl: string | null;
   isLoading: boolean;
+  statusMessage: string | null;
 }
 
-export default function ImagePreview({ imageUrl, isLoading }: ImagePreviewProps) {
+export default function ImagePreview({ imageUrl, isLoading, statusMessage }: ImagePreviewProps) {
   const [imageError, setImageError] = useState(false);
 
   const handleDownload = async () => {
@@ -50,7 +51,7 @@ export default function ImagePreview({ imageUrl, isLoading }: ImagePreviewProps)
                 <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 blur-xl opacity-50 animate-pulse" />
                 <Loader2 className="h-8 w-8 animate-spin text-primary relative z-10" />
               </div>
-              <p className="text-sm text-muted-foreground animate-pulse">Creating your masterpiece...</p>
+              <p className="text-sm text-muted-foreground animate-pulse">{statusMessage}</p>
             </div>
           ) : imageUrl && !imageError ? (
             <>
@@ -86,18 +87,8 @@ export default function ImagePreview({ imageUrl, isLoading }: ImagePreviewProps)
               </div>
             </>
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-              {imageError ? (
-                <div className="text-center space-y-2">
-                  <XCircle className="w-8 h-8 mx-auto text-destructive" />
-                  <p>Failed to load image</p>
-                </div>
-              ) : (
-                <div className="text-center space-y-2">
-                  <ImageIcon className="w-8 h-8 mx-auto text-muted-foreground/50" />
-                  <p>Your creation will appear here</p>
-                </div>
-              )}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <p className="text-sm text-muted-foreground">{statusMessage || 'Ready to generate'}</p>
             </div>
           )}
         </div>

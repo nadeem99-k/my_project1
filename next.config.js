@@ -4,10 +4,22 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
+        hostname: 'hotpot.ai',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'oaidalleapiprodscus.blob.core.windows.net',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'image.pollinations.ai',
         port: '',
-        pathname: '/prompt/**',
-      },
+        pathname: '/**',
+      }
     ],
   },
 }
